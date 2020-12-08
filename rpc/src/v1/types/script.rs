@@ -14,8 +14,9 @@ pub enum ScriptType {
 	WitnessScript,
 	WitnessKey,
 	// Qtum specific
+	CallSender,
+	CreateSender,
 	Call,
-	// Qtum specific
 	Create,
 }
 
@@ -30,6 +31,8 @@ impl From<GlobalScriptType> for ScriptType {
 			GlobalScriptType::NullData => ScriptType::NullData,
 			GlobalScriptType::WitnessScript => ScriptType::WitnessScript,
 			GlobalScriptType::WitnessKey => ScriptType::WitnessKey,
+			GlobalScriptType::CallSender => ScriptType::CallSender,
+			GlobalScriptType::CreateSender => ScriptType::CreateSender,
 			GlobalScriptType::Call => ScriptType::Call,
 			GlobalScriptType::Create => ScriptType::Create,
 		}
@@ -47,6 +50,8 @@ impl Serialize for ScriptType {
 			ScriptType::NullData => "nulldata".serialize(serializer),
 			ScriptType::WitnessScript => "witness_v0_scripthash".serialize(serializer),
 			ScriptType::WitnessKey => "witness_v0_keyhash".serialize(serializer),
+            ScriptType::CallSender => "call_sender".serialize(serializer),
+            ScriptType::CreateSender => "create_sender".serialize(serializer),
 			ScriptType::Call => "call".serialize(serializer),
 			ScriptType::Create => "create".serialize(serializer),
 		}
@@ -76,6 +81,8 @@ impl<'a> Deserialize<'a> for ScriptType {
 					"nulldata" => Ok(ScriptType::NullData),
 					"witness_v0_scripthash" => Ok(ScriptType::WitnessScript),
 					"witness_v0_keyhash" => Ok(ScriptType::WitnessKey),
+                    "call_sender" => Ok(ScriptType::CallSender),
+                    "create_sender" => Ok(ScriptType::CreateSender),
 					"call" => Ok(ScriptType::Call),
 					"create" => Ok(ScriptType::Create),
 					_ => Err(E::invalid_value(Unexpected::Str(value), &self)),
@@ -102,6 +109,8 @@ mod tests {
 		assert_eq!(serde_json::to_string(&ScriptType::NullData).unwrap(), r#""nulldata""#);
 		assert_eq!(serde_json::to_string(&ScriptType::WitnessScript).unwrap(), r#""witness_v0_scripthash""#);
 		assert_eq!(serde_json::to_string(&ScriptType::WitnessKey).unwrap(), r#""witness_v0_keyhash""#);
+        assert_eq!(serde_json::to_string(&ScriptType::CallSender).unwrap(), r#""call_sender""#);
+        assert_eq!(serde_json::to_string(&ScriptType::CreateSender).unwrap(), r#""create_sender""#);
 		assert_eq!(serde_json::to_string(&ScriptType::Call).unwrap(), r#""call""#);
 		assert_eq!(serde_json::to_string(&ScriptType::Create).unwrap(), r#""create""#);
 	}
@@ -116,6 +125,8 @@ mod tests {
 		assert_eq!(serde_json::from_str::<ScriptType>(r#""nulldata""#).unwrap(), ScriptType::NullData);
 		assert_eq!(serde_json::from_str::<ScriptType>(r#""witness_v0_scripthash""#).unwrap(), ScriptType::WitnessScript);
 		assert_eq!(serde_json::from_str::<ScriptType>(r#""witness_v0_keyhash""#).unwrap(), ScriptType::WitnessKey);
+        assert_eq!(serde_json::from_str::<ScriptType>(r#""call_sender""#).unwrap(), ScriptType::CallSender);
+        assert_eq!(serde_json::from_str::<ScriptType>(r#""create_sender""#).unwrap(), ScriptType::CreateSender);
 		assert_eq!(serde_json::from_str::<ScriptType>(r#""call""#).unwrap(), ScriptType::Call);
 		assert_eq!(serde_json::from_str::<ScriptType>(r#""create""#).unwrap(), ScriptType::Create);
 	}

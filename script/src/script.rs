@@ -29,8 +29,9 @@ pub enum ScriptType {
 	WitnessScript,
 	WitnessKey,
 	// Qtum specific
+	CallSender,
+	CreateSender,
 	Call,
-	// Qtum specific
 	Create,
 }
 
@@ -464,6 +465,12 @@ impl Script {
 				Ok(vec![]) // TODO
 			},
 			ScriptType::WitnessKey => {
+				Ok(vec![]) // TODO
+			},
+			ScriptType::CallSender => {
+				Ok(vec![]) // TODO
+			},
+			ScriptType::CreateSender => {
 				Ok(vec![]) // TODO
 			},
 			ScriptType::Call => {
