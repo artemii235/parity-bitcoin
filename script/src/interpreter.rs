@@ -1144,7 +1144,7 @@ mod tests {
 	use chain::Transaction;
 	use crypto::ChecksumType;
 	use hash::{H256, H512};
-	use sign::SignatureVersion;
+	use sign::{SignatureVersion, SignerHashAlgo};
 	use script::MAX_SCRIPT_ELEMENT_SIZE;
 	use {
 		Opcode, Script, ScriptWitness, VerificationFlags, Builder, Error, Num, TransactionInputSigner,
@@ -2301,6 +2301,7 @@ mod tests {
 				shielded_outputs: vec![],
 				zcash: false,
 				str_d_zeel: None,
+				hash_algo: SignerHashAlgo::DSHA256,
 			},
 		};
 

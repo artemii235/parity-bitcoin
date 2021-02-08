@@ -120,6 +120,7 @@ impl From<TransactionInput> for UnsignedTransactionInput {
 	}
 }
 
+#[derive(Clone, Debug)]
 pub enum SignerHashAlgo {
 	SHA256,
 	DSHA256,
@@ -518,6 +519,7 @@ mod tests {
 	use chain::{OutPoint, TransactionOutput, Transaction};
 	use script::Script;
 	use super::{Sighash, UnsignedTransactionInput, TransactionInputSigner, SighashBase, SignatureVersion, blake_2b_256_personal};
+	use sign::SignerHashAlgo;
 
 	// http://www.righto.com/2014/02/bitcoins-hard-way-using-raw-bitcoin.html
 	// https://blockchain.info/rawtx/81b4c832d70cb56ff957589752eb4125a4cab78a25a8fc52d6a09e5bd4404d48
@@ -566,6 +568,7 @@ mod tests {
 			shielded_outputs: vec![],
 			zcash: false,
 			str_d_zeel: None,
+			hash_algo: SignerHashAlgo::DSHA256,
 		};
 
 		let hash = input_signer.signature_hash(0, 0, &previous_output, SignatureVersion::Base, SighashBase::All.into());
