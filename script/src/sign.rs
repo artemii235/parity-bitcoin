@@ -3,7 +3,7 @@
 use blake2b_simd::{Params as Blake2b};
 use bytes::Bytes;
 use chain::{Transaction, TransactionOutput, OutPoint, TransactionInput, JoinSplit, ShieldedSpend, ShieldedOutput};
-use crypto::dhash256;
+use crypto::{sha256, dhash256};
 use hash::{H256, H512};
 use keys::KeyPair;
 use ser::{Stream};
@@ -120,6 +120,11 @@ impl From<TransactionInput> for UnsignedTransactionInput {
 	}
 }
 
+pub enum SignerHashAlgo {
+	SHA256,
+	DSHA256,
+}
+
 #[derive(Clone, Debug)]
 pub struct TransactionInputSigner {
 	pub version: i32,
@@ -137,6 +142,7 @@ pub struct TransactionInputSigner {
 	pub shielded_outputs: Vec<ShieldedOutput>,
 	pub zcash: bool,
 	pub str_d_zeel: Option<String>,
+	pub hash_algo: SignerHashAlgo,
 }
 
 /// Used for resigning and loading test transactions
@@ -158,6 +164,7 @@ impl From<Transaction> for TransactionInputSigner {
 			shielded_outputs: t.shielded_outputs.clone(),
 			zcash: t.zcash,
 			str_d_zeel: t.str_d_zeel,
+			hash_algo: SignerHashAlgo::DSHA256,
 		}
 	}
 }
@@ -312,7 +319,10 @@ impl TransactionInputSigner {
 		stream.append(&tx);
 		stream.append(&sighashtype);
 		let out = stream.out();
-		dhash256(&out)
+		match self.hash_algo {
+			SignerHashAlgo::DSHA256 => dhash256(&out),
+			SignerHashAlgo::SHA256 => sha256(&out),
+		}
 	}
 
 	fn signature_hash_witness0(&self, input_index: usize, input_amount: u64, script_pubkey: &Script, sighashtype: u32, sighash: Sighash) -> H256 {
