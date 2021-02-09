@@ -197,7 +197,7 @@ impl From<&'static str> for Transaction {
 	}
 }
 
-#[derive(Copy, Debug)]
+#[derive(Clone, Copy, Debug)]
 pub enum TxHashAlgo {
     DSHA256,
     SHA256,
