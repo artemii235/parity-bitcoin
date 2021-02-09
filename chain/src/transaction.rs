@@ -189,6 +189,7 @@ pub struct Transaction {
 	pub zcash: bool,
     /// https://github.com/navcoin/navcoin-core/blob/556250920fef9dc3eddd28996329ba316de5f909/src/primitives/transaction.h#L497
     pub str_d_zeel: Option<String>,
+    pub tx_hash_algo: TxHashAlgo,
 }
 
 impl From<&'static str> for Transaction {
@@ -197,16 +198,22 @@ impl From<&'static str> for Transaction {
 	}
 }
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum TxHashAlgo {
     DSHA256,
     SHA256,
 }
 
+impl Default for TxHashAlgo {
+    fn default() -> Self {
+        TxHashAlgo::DSHA256
+    }
+}
+
 impl Transaction {
-	pub fn hash(&self, algo: TxHashAlgo) -> H256 {
+	pub fn hash(&self) -> H256 {
         let serialized = &serialize(self);
-        match algo {
+        match self.tx_hash_algo {
             TxHashAlgo::DSHA256 => dhash256(&serialized),
             TxHashAlgo::SHA256 => sha256(&serialized),
         }
@@ -487,6 +494,7 @@ fn deserialize_tx<T>(reader: &mut Reader<T>, tx_type: TxType) -> Result<Transact
 		shielded_outputs,
 		zcash,
         str_d_zeel,
+        tx_hash_algo: TxHashAlgo::DSHA256,
 	})
 }
 
@@ -690,7 +698,7 @@ mod tests {
 	fn test_transaction_hash() {
 		let t: Transaction = "0100000001a6b97044d03da79c005b20ea9c0e1a6d9dc12d9f7b91a5911c9030a439eed8f5000000004948304502206e21798a42fae0e854281abd38bacd1aeed3ee3738d9e1446618c4571d1090db022100e2ac980643b0b82c0e88ffdfec6b64e3e6ba35e7ba5fdd7d5d6cc8d25c6b241501ffffffff0100f2052a010000001976a914404371705fa9bd789a2fcd52d2c580b65d35549d88ac00000000".into();
 		let hash = H256::from_reversed_str("5a4ebf66822b0b2d56bd9dc64ece0bc38ee7844a23ff1d7320a88c5fdb2ad3e2");
-		assert_eq!(t.hash(TxHashAlgo::DSHA256), hash);
+		assert_eq!(t.hash(), hash);
 	}
 
 	#[test]
@@ -747,6 +755,7 @@ mod tests {
 			lock_time: 0x00000011,
 			zcash: false,
             str_d_zeel: None,
+            tx_hash_algo: TxHashAlgo::DSHA256,
 		};
 		assert_eq!(actual, expected);
 	}
@@ -763,10 +772,10 @@ mod tests {
 	#[test]
 	fn test_witness_hash_differs() {
 		let transaction_without_witness: Transaction = "000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000".into();
-		assert_eq!(transaction_without_witness.hash(TxHashAlgo::DSHA256), transaction_without_witness.witness_hash());
+		assert_eq!(transaction_without_witness.hash(), transaction_without_witness.witness_hash());
 
 		let transaction_with_witness: Transaction = "0000000000010100000000000000000000000000000000000000000000000000000000000000000000000000000000000001010000000000".into();
-		assert!(transaction_with_witness.hash(TxHashAlgo::DSHA256) != transaction_with_witness.witness_hash());
+		assert!(transaction_with_witness.hash() != transaction_with_witness.witness_hash());
 	}
 
 	// BLK is PoS coin having nTime field in transaction

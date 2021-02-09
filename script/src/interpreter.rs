@@ -1141,7 +1141,7 @@ pub fn eval_script(
 #[cfg(test)]
 mod tests {
 	use bytes::Bytes;
-	use chain::Transaction;
+	use chain::{Transaction, TxHashAlgo};
 	use crypto::ChecksumType;
 	use hash::{H256, H512};
 	use sign::{SignatureVersion, SignerHashAlgo};
@@ -2373,6 +2373,7 @@ mod tests {
 			lock_time: 0,
 			zcash: false,
 			str_d_zeel: None,
+			tx_hash_algo: TxHashAlgo::DSHA256,
 		};
 		let tx2 = Transaction {
 			version: 1,
@@ -2403,6 +2404,7 @@ mod tests {
 			lock_time: 0,
 			zcash: false,
 			str_d_zeel: None,
+			tx_hash_algo: TxHashAlgo::DSHA256,
 		};
 
 		let checker = TransactionSignatureChecker {

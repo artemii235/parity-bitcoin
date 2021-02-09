@@ -29,7 +29,7 @@ impl Block {
 
 	/// Returns block's merkle root.
 	pub fn merkle_root(&self) -> H256 {
-		let hashes = self.transactions.iter().map(|tx| tx.hash(TxHashAlgo::DSHA256)).collect::<Vec<H256>>();
+		let hashes = self.transactions.iter().map(|tx| tx.hash()).collect::<Vec<H256>>();
 		merkle_root(&hashes)
 	}
 

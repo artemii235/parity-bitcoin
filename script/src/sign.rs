@@ -2,7 +2,7 @@
 
 use blake2b_simd::{Params as Blake2b};
 use bytes::Bytes;
-use chain::{Transaction, TransactionOutput, OutPoint, TransactionInput, JoinSplit, ShieldedSpend, ShieldedOutput};
+use chain::{TxHashAlgo, Transaction, TransactionOutput, OutPoint, TransactionInput, JoinSplit, ShieldedSpend, ShieldedOutput};
 use crypto::{sha256, dhash256};
 use hash::{H256, H512};
 use keys::KeyPair;
@@ -120,10 +120,28 @@ impl From<TransactionInput> for UnsignedTransactionInput {
 	}
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Copy, Debug)]
 pub enum SignerHashAlgo {
 	SHA256,
 	DSHA256,
+}
+
+impl From<TxHashAlgo> for SignerHashAlgo {
+	fn from(tx_hash: TxHashAlgo) -> SignerHashAlgo {
+		match tx_hash {
+			TxHashAlgo::DSHA256 => SignerHashAlgo::DSHA256,
+			TxHashAlgo::SHA256 => SignerHashAlgo::SHA256,
+		}
+	}
+}
+
+impl Into<TxHashAlgo> for SignerHashAlgo {
+	fn into(self) -> TxHashAlgo {
+		match self {
+			SignerHashAlgo::DSHA256 => TxHashAlgo::DSHA256,
+			SignerHashAlgo::SHA256 => TxHashAlgo::SHA256,
+		}
+	}
 }
 
 #[derive(Clone, Debug)]
@@ -165,7 +183,7 @@ impl From<Transaction> for TransactionInputSigner {
 			shielded_outputs: t.shielded_outputs.clone(),
 			zcash: t.zcash,
 			str_d_zeel: t.str_d_zeel,
-			hash_algo: SignerHashAlgo::DSHA256,
+			hash_algo: t.tx_hash_algo.into(),
 		}
 	}
 }
@@ -197,6 +215,7 @@ impl From<TransactionInputSigner> for Transaction {
 			join_split_pubkey: H256::default(),
 			join_split_sig: H512::default(),
 			str_d_zeel: t.str_d_zeel,
+			tx_hash_algo: t.hash_algo.into(),
 		}
 	}
 }
@@ -314,6 +333,7 @@ impl TransactionInputSigner {
 			version_group_id: 0,
 			zcash: self.zcash,
 			str_d_zeel: self.str_d_zeel.clone(),
+			tx_hash_algo: self.hash_algo.into(),
 		};
 
 		let mut stream = Stream::default();

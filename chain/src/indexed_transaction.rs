@@ -24,7 +24,7 @@ impl<T> From<T> for IndexedTransaction where Transaction: From<T> {
 	fn from(other: T) -> Self {
 		let tx = Transaction::from(other);
 		IndexedTransaction {
-			hash: tx.hash(TxHashAlgo::DSHA256),
+			hash: tx.hash(),
 			raw: tx,
 		}
 	}
