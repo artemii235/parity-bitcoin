@@ -3,6 +3,7 @@ use hash::H256;
 use ser::{Deserializable, Reader, Error as ReaderError};
 use transaction::Transaction;
 use read_and_hash::ReadAndHash;
+use TxHashAlgo;
 
 #[derive(Default, Clone)]
 pub struct IndexedTransaction {
@@ -23,7 +24,7 @@ impl<T> From<T> for IndexedTransaction where Transaction: From<T> {
 	fn from(other: T) -> Self {
 		let tx = Transaction::from(other);
 		IndexedTransaction {
-			hash: tx.hash(),
+			hash: tx.hash(TxHashAlgo::DSHA256),
 			raw: tx,
 		}
 	}

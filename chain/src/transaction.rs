@@ -5,7 +5,7 @@ use std::io;
 use hex::FromHex;
 use bytes::Bytes;
 use ser::{deserialize, serialize, serialize_with_flags, SERIALIZE_TRANSACTION_WITNESS};
-use crypto::dhash256;
+use crypto::{sha256, dhash256};
 use hash::{H64, H256, H512, EncCipherText, OutCipherText, ZkProof, ZkProofSapling, CipherText};
 use constants::{SEQUENCE_FINAL, LOCKTIME_THRESHOLD};
 use ser::{CompactInteger, Error, Serializable, Deserializable, Stream, Reader};
@@ -197,9 +197,19 @@ impl From<&'static str> for Transaction {
 	}
 }
 
+#[derive(Debug)]
+pub enum TxHashAlgo {
+    DSHA256,
+    SHA256,
+}
+
 impl Transaction {
-	pub fn hash(&self) -> H256 {
-		dhash256(&serialize(self))
+	pub fn hash(&self, algo: TxHashAlgo) -> H256 {
+        let serialized = &serialize(self);
+        match algo {
+            TxHashAlgo::DSHA256 => dhash256(&serialized),
+            TxHashAlgo::SHA256 => sha256(&serialized),
+        }
 	}
 
 	pub fn witness_hash(&self) -> H256 {
@@ -504,8 +514,9 @@ mod tests {
 	use ser::{Serializable, serialize, deserialize, serialize_with_flags, SERIALIZE_TRANSACTION_WITNESS};
 	use super::{Transaction, TransactionInput, OutPoint, TransactionOutput, Bytes};
 	use hex::ToHex;
+    use TxHashAlgo;
 
-	// real transaction from block 80000
+    // real transaction from block 80000
 	// https://blockchain.info/rawtx/5a4ebf66822b0b2d56bd9dc64ece0bc38ee7844a23ff1d7320a88c5fdb2ad3e2
 	// https://blockchain.info/rawtx/5a4ebf66822b0b2d56bd9dc64ece0bc38ee7844a23ff1d7320a88c5fdb2ad3e2?format=hex
 	#[test]
@@ -679,7 +690,7 @@ mod tests {
 	fn test_transaction_hash() {
 		let t: Transaction = "0100000001a6b97044d03da79c005b20ea9c0e1a6d9dc12d9f7b91a5911c9030a439eed8f5000000004948304502206e21798a42fae0e854281abd38bacd1aeed3ee3738d9e1446618c4571d1090db022100e2ac980643b0b82c0e88ffdfec6b64e3e6ba35e7ba5fdd7d5d6cc8d25c6b241501ffffffff0100f2052a010000001976a914404371705fa9bd789a2fcd52d2c580b65d35549d88ac00000000".into();
 		let hash = H256::from_reversed_str("5a4ebf66822b0b2d56bd9dc64ece0bc38ee7844a23ff1d7320a88c5fdb2ad3e2");
-		assert_eq!(t.hash(), hash);
+		assert_eq!(t.hash(TxHashAlgo::DSHA256), hash);
 	}
 
 	#[test]
@@ -752,10 +763,10 @@ mod tests {
 	#[test]
 	fn test_witness_hash_differs() {
 		let transaction_without_witness: Transaction = "000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000".into();
-		assert_eq!(transaction_without_witness.hash(), transaction_without_witness.witness_hash());
+		assert_eq!(transaction_without_witness.hash(TxHashAlgo::DSHA256), transaction_without_witness.witness_hash());
 
 		let transaction_with_witness: Transaction = "0000000000010100000000000000000000000000000000000000000000000000000000000000000000000000000000000001010000000000".into();
-		assert!(transaction_with_witness.hash() != transaction_with_witness.witness_hash());
+		assert!(transaction_with_witness.hash(TxHashAlgo::DSHA256) != transaction_with_witness.witness_hash());
 	}
 
 	// BLK is PoS coin having nTime field in transaction

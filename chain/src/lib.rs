@@ -30,7 +30,7 @@ pub use primitives::{hash, bytes, bigint, compact};
 pub use block::Block;
 pub use block_header::{BlockHeader};
 pub use merkle_root::{merkle_root, merkle_node_hash};
-pub use transaction::{Transaction, TransactionInput, TransactionOutput, OutPoint, JoinSplit, ShieldedSpend, ShieldedOutput};
+pub use transaction::{Transaction, TransactionInput, TransactionOutput, TxHashAlgo, OutPoint, JoinSplit, ShieldedSpend, ShieldedOutput};
 
 pub use read_and_hash::{ReadAndHash, HashedData};
 pub use indexed_block::IndexedBlock;
