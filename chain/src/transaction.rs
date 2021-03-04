@@ -442,10 +442,7 @@ pub fn deserialize_tx<T>(reader: &mut Reader<T>, tx_type: TxType) -> Result<Tran
 	let mut join_split_pubkey = H256::default();
 	let mut join_split_sig = H512::default();
 	let mut binding_sig = H512::default();
-	// Non-Zcash transactions usually end here
-	// But when overwintered is true then we have Zcash transaction for sure.
-	// If reader is already finished when overwintered we should just error
-	let zcash = !reader.is_finished() || overwintered || tx_type == TxType::Zcash;
+	let zcash = overwintered || tx_type == TxType::Zcash;
 	if zcash {
 		if version == 2 || overwintered {
             let len: usize = reader.read::<CompactInteger>()?.into();
