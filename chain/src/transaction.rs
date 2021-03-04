@@ -379,13 +379,13 @@ impl Serializable for Transaction {
 }
 
 #[derive(Eq, PartialEq)]
-enum TxType {
+pub enum TxType {
     StandardWithWitness,
     Zcash,
     PosWithNTime,
 }
 
-fn deserialize_tx<T>(reader: &mut Reader<T>, tx_type: TxType) -> Result<Transaction, Error> where T: io::Read {
+pub fn deserialize_tx<T>(reader: &mut Reader<T>, tx_type: TxType) -> Result<Transaction, Error> where T: io::Read {
 	let header: i32 = reader.read()?;
 	let overwintered: bool = (header >> 31) != 0;
 	let version = if overwintered {
