@@ -2,7 +2,7 @@ use std::io;
 use byteorder::{ReadBytesExt, WriteBytesExt, LittleEndian};
 use bytes::Bytes;
 use compact::Compact;
-use hash::{H32, H48, H64, H96, H160, H256, H264, H512, H520, OutCipherText, EncCipherText, EquihashSolution, ZkProof, ZkProofSapling, CipherText};
+use hash::{H32, H48, H64, H96, H128, H160, H256, H264, H512, H520, OutCipherText, EncCipherText, EquihashSolution, ZkProof, ZkProofSapling, CipherText};
 use compact_integer::CompactInteger;
 use {Serializable, Stream, Deserializable, Reader, Error};
 
@@ -208,6 +208,7 @@ impl_ser_for_hash!(H32, 4);
 impl_ser_for_hash!(H48, 6);
 impl_ser_for_hash!(H64, 8);
 impl_ser_for_hash!(H96, 12);
+impl_ser_for_hash!(H128, 16);
 impl_ser_for_hash!(H160, 20);
 impl_ser_for_hash!(H256, 32);
 impl_ser_for_hash!(H264, 33);

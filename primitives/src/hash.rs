@@ -157,6 +157,7 @@ impl_hash!(H32, 4);
 impl_hash!(H48, 6);
 impl_hash!(H64, 8);
 impl_hash!(H96, 12);
+impl_hash!(H128, 16);
 impl_hash!(H160, 20);
 impl_hash!(H256, 32);
 impl_hash!(H264, 33);
