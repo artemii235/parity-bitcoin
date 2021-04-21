@@ -13,6 +13,7 @@ mod interpreter;
 mod num;
 mod opcode;
 mod script;
+mod bip143;
 mod sign;
 mod stack;
 mod verify;
