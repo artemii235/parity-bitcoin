@@ -27,7 +27,7 @@ pub use self::interpreter::{eval_script, verify_script};
 pub use self::opcode::Opcode;
 pub use self::num::Num;
 pub use self::script::{Script, ScriptType, ScriptAddress, ScriptWitness, is_witness_commitment_script};
-pub use self::sign::{SignerHashAlgo, TransactionInputSigner, UnsignedTransactionInput, SignatureVersion};
+pub use self::sign::{SignerHashAlgo, TransactionInputSigner, UnsignedTransactionInput, SignatureVersion, Sighash};
 pub use self::stack::Stack;
 pub use self::verify::{SignatureChecker, NoopSignatureChecker, TransactionSignatureChecker};
 
