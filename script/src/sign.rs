@@ -152,7 +152,7 @@ pub struct TransactionInputSigner {
 	pub version_group_id: u32,
 	pub consensus_branch_id: u32,
 	pub expiry_height: u32,
-	pub value_balance: u64,
+	pub value_balance: i64,
 	pub inputs: Vec<UnsignedTransactionInput>,
 	pub outputs: Vec<TransactionOutput>,
 	pub lock_time: u32,
