@@ -457,7 +457,9 @@ impl TransactionInputSigner {
 			for output in self.shielded_outputs.iter() {
 				s_outputs_stream.append(output);
 			}
-			sig_hash_stream.append(&blake_2b_256_personal(&s_outputs_stream.out(), ZCASH_SHIELDED_OUTPUTS_HASH_PERSONALIZATION));
+			let hash_shielded_outputs = blake_2b_256_personal(&s_outputs_stream.out(), ZCASH_SHIELDED_OUTPUTS_HASH_PERSONALIZATION);
+			println!("hash_shielded_outputs {:?}", hash_shielded_outputs.reversed());
+			sig_hash_stream.append(&hash_shielded_outputs);
 		} else {
 			sig_hash_stream.append(&H256::default());
 		}
@@ -691,5 +693,33 @@ mod tests {
 		);
 
 		assert_eq!(H256::from("047da0d9932545770fc570122c4451b53fadad219650008e5026162e957a46f9"), hash);
+	}
+
+	#[test]
+	fn test_sapling_sig_hash_3() {
+		let tx: Transaction = "0400008085202f890162878ceccb1d4ea904681f3fffad22ec79aeea7e83f117a579ec60859ab9ee3e0000000000feffffff00e5c29360c701000010460afaffffffff00015280edc62c0e174cc112dfcc5c47c34d74d119bca3850c54bbe6383ed4d0d9f242c8cb5819674460802bd39257bf0bb7c7b5e9f9efb051e6f48d681f088c916e713187a7fcbce4eb6ec7f35d5bbdab1225ded98e2f845cddae36ebf45c9e7e00e28614c05416da18888e3883e9667e2df9a513612fe41df4c462b28473c1f10aa03cec99d1e4e23cd84d1bfee827ec9077ddb0d0537660017778e880c7835c9d81e4d8cfb1def0506805cac8fd3ebf2f231d15fbd9807e0ec7c50d26b24f8f07b21552dc0abc0feb4e7ee7ee40c620a07160a87a4683801539e4b22f0778960dd0a6e2b8d6b09cd5e0fbf40484340f9a88c0bea726d6221244ea5ba859f04af0dc8798c4e4379620bad0b7ac9093d877f23431f30a39173f8a2db2a6665a0cc0180f9eab676cac85aeeee14ec53abbb94f977b01437310c4543a390e4e4838c6a3b9de82d63ed7c4032d9c32d631adb477391a30807fffd33f98b8ed72b0684eb9f6afd02a4d9c935353448103d490f7095a725f75d75c3539d4e9ea7b76a725d4898403e9047288ad2ba46bec0e130f5ed160e4b2cf7a0db768a7a1f158baf067f6996f171269fa41df02c5b588fd12d430b40f8763b1d2f4b234f6a490ae90266c262fa8ec8da3172e87064d97d3a2a2700b5215739196553fe2d69db970f8b8d0252439f7829dcc7d8ec17dfa85e53320e26650876888a7505327b03abecb91b6367e4c3feada297ae0eff32ce0ff3780d924cb2f19ae97bb648fa6a49e6a8677ef4aa08b55bc9ae77ac6a2a7ad26c3c7ac718ef263ea53fbad012c641aed9997221a283743e337e97aa62ef6db3ae13835f4b572000f8c5a32b73aecfc7ae68b2b9924b6dde7c6fcca207e25feae0a024c4fcfd0207e9ad346b36af5fd581769cac99daeab680c593a617d9571ed5c247846d14cecda2acfe9cfbbb22408c1bc3bb7da3f7ac4a8ca0726ba01ee4531b5036fcc376970998b617d6cef7bbe4bdbf77d6adaebbdc0542ea60ff25b30cde6764777d1f821fd60f91499ccb3aac20d5ccd01ed313a53ac33bcbdaca460209aaa0e94feb16a82cbaa902210644777a21862c7dbc30df403c75e04dc47696230cf40dfa1045f480abdbebf4ebcbac6f700f287cef3d4b147ddf0e8e9d02ee9baa51604682d5b983dc6f8abee274be0e02a8a7de3fbb22563726c2e7d34b15c437e560e7ce1569ea2ed16e37d908e60af15fd44e46b8969fa74a0f24147553947da7db10fa3394c54413f1b4d6dfcab790a3a91027a1947a229644da8663f05bd05ff4a8621db679467ab74bf8eab1be5861f80b004af53cb679be479e82aa3de8ae5002521474e197975860a9b506e698ffaa385803c656dd984b60b0569ad617c6347722fddbde10f0f485362fbedfde0a600bf551c3f8b02778c4d6960a533fcb302".into();
+		let mut signer = TransactionInputSigner::from(tx);
+		signer.inputs[0].amount = 100000000;
+		signer.consensus_branch_id = 0x76b809bb;
+
+		let sig_hash = Sighash::from_u32(SignatureVersion::Base, 1);
+		let hash = signer.signature_hash_overwintered(
+			0,
+			&Script::from("6304e5928060b17521031c632dad67a611de77d9666cbc61e65957c7d7544c25e384f4e76de729e6a1bfac6782012088a914b78f0b837e2c710f8b28e59d06473d489e5315c88821037310a8fb9fd8f198a1a21db830252ad681fccda580ed4101f3f6bfb98b34fab5ac68"),
+			1,
+			sig_hash
+		);
+
+		assert_eq!(H256::from("4e8465af6add3acdc3bbc05d97ab1aef8e9d66784c29f94b2551ba25f3d90054"), hash.unwrap().reversed());
+
+        let hash = signer.signature_hash(
+			0,
+            0,
+			&Script::from("6304e5928060b17521031c632dad67a611de77d9666cbc61e65957c7d7544c25e384f4e76de729e6a1bfac6782012088a914b78f0b837e2c710f8b28e59d06473d489e5315c88821037310a8fb9fd8f198a1a21db830252ad681fccda580ed4101f3f6bfb98b34fab5ac68"),
+			SignatureVersion::Base,
+            1
+		);
+
+		assert_eq!(H256::from("4e8465af6add3acdc3bbc05d97ab1aef8e9d66784c29f94b2551ba25f3d90054"), hash.reversed());
 	}
 }
